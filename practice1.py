@@ -49,10 +49,9 @@ def calculating_m_b(x, y):
  
     return (b, m)
  
-def plot_regression_line(x, y, b):
+def plotting_graph(x, y, b):
     # plotting the actual points as scatter plot
-    plt.scatter(x, y, color = "m",
-               marker = "o", s = 30)
+    plt.scatter(x, y, color = "m", marker = "o", s = 30)
  
     # predicted response vector
     pred = b[0] + b[1]*x
@@ -74,11 +73,11 @@ def main():
  
     # estimating coefficients
     b = calculating_m_b(x, y)
-    print("Estimated coefficients:\nb_0 = {}  \
-          \nb_1 = {}".format(b[0], b[1]))
+    print("Estimated coefficients:\nm = {}  \
+          \nb = {}".format(b[0], b[1]))
  
     # plotting regression line
-    plot_regression_line(x, y, b)
+    plotting_graph(x, y, b)
  
 if __name__ == "__main__":
     main()

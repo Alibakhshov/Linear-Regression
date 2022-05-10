@@ -1,15 +1,18 @@
+from glob import glob
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from pyrsistent import b
 
 from sympy.functions import sin,cos
 import matplotlib.pyplot as plt
 from sympy.functions import sin,cos
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 class LinearRegression(App):
     def build(self):
@@ -20,15 +23,26 @@ class LinearRegression(App):
         #add widgets to window
         
         # image widget
-        self.window.add_widget(Image(source="./Images/1.png"))
+        self.window.add_widget(Image(source="./Images/UCA.png"))
         
         # Label widget
-        self.greeting = Label(  
-                              text="What's your name",
-                              font_size = 18,
-                              color = '#00FFCE'
+        self.lin_reg = Label(  
+                              text="Linear Regression",
+                              font_size = 30,
+                              color = '#00FFCE',
+                              size_hint = (1, 0.5)
                               )
-        self.window.add_widget(self.greeting)
+        self.window.add_widget(self.lin_reg)
+        
+        self.m = Label(  
+                              text="m",
+                              font_size = 30,
+                              color = '#00FFCE',
+                              size_hint = (1, 0.5),
+                              padding = (2, 5),
+                              pos_hint = {"center_x": 5, "center_y":0.5}
+                              )
+        self.window.add_widget(self.m)
         
         # Text input widget
         self.user = TextInput(
@@ -48,14 +62,14 @@ class LinearRegression(App):
         self.window.add_widget(self.user1)
         
         # button widget
-        self.button = Button(
-                              text="Greet",
+        self.calculate = Button(
+                              text="Calculate",
                               size_hint = (1, 0.5),
                               bold = True,
                               background_color = '#00FFCE'                     
                               )
-        self.window.add_widget(self.button)
-        self.button.bind(on_press=self.callback)
+        self.window.add_widget(self.calculate)
+        self.calculate.bind(on_press=self.callback)
         
         self.exitButton = Button(
                               text="Exit",
@@ -66,67 +80,81 @@ class LinearRegression(App):
         self.window.add_widget(self.exitButton)
         self.exitButton.bind(on_press=self.close)
         
+        
+        
+        
         return self.window
 
         
     def callback(self, instance):
         # self.greeting.text = "Hello " + self.user.text + "!"
         # self.greeting.text = str(int(self.user.text)  + int(self.user1.text))
-  
-        def estimate_coef(x, y):
+        global m, b
+        
+        mtcars = pd.read_csv("data.csv")
+        def calculating_m_b(x, y):
             # number of observations/points
             n = np.size(x)
         
             # mean of x and y vector
-            m_x = np.mean(x)
-            m_y = np.mean(y)
+            x_mean = np.mean(x)
+            y_mean = np.mean(y)
         
             # calculating cross-deviation and deviation about x
-            SS_xy = np.sum(y*x) - n*m_y*m_x
-            SS_xx = np.sum(x*x) - n*m_x*m_x
+            deviation_xy = np.sum(y*x) - n*y_mean*x_mean
+            deviation_xx = np.sum(x*x) - n*x_mean*x_mean
         
             # calculating regression coefficients
-            b_1 = SS_xy / SS_xx
-            b_0 = m_y - b_1*m_x
+            m = deviation_xy / deviation_xx
+            b = y_mean - m*x_mean
         
-            return (b_0, b_1)
+            return (b, m)
         
-        def plot_regression_line(x, y, b):
+        def main():
+            # observations / data
+            x = mtcars.Area.values
+            y = mtcars.rooms.values
+        
+            # estimating coefficients
+            b = calculating_m_b(x, y)
+            self.user.text = str(b[0])
+            self.user1.text = str(b[1])
+            
+            # print("Estimated coefficients:\nm = {}  \
+            #     \nb = {}".format(b[0], b[1]))
+        
+            # plotting regression line
+            plotting_graph(x, y, b)
+        
+        def plotting_graph(x, y, b):
             # plotting the actual points as scatter plot
-            plt.scatter(x, y, color = "m",
-                    marker = "o", s = 30)
+            plt.scatter(x, y, color = "m", marker = "o", s = 30)
         
             # predicted response vector
-            y_pred = b[0] + b[1]*x
+            pred = b[0] + b[1]*x
         
             # plotting the regression line
-            plt.plot(x, y_pred, color = "g")
+            plt.plot(x, pred, color = "g")
         
             # putting labels
-            plt.xlabel('x')
-            plt.ylabel('y')
+            plt.xlabel('Area')
+            plt.ylabel('Number of rooms')
         
             # function to show plot
             plt.show()
         
-        def main():
-            # observations / data
-            x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-            y = np.array([1, 3, 2, 5, 7, 8, 8, 9, 10, 12])
         
-            # estimating coefficients
-            b = estimate_coef(x, y)
-            print("Estimated coefficients:\nb_0 = {}  \
-                \nb_1 = {}".format(b[0], b[1]))
-        
-            # plotting regression line
-            plot_regression_line(x, y, b)
         
         if __name__ == "__main__":
             main()
         
+        
+  
+  
     def close(self):
         self.window.close()  
+    
+
         
 
 if __name__ == "__main__":

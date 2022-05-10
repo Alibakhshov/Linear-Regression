@@ -1,70 +1,100 @@
-# from sympy.functions import sin,cos
-# import matplotlib.pyplot as plt
-# from sympy.functions import sin,cos
-# import matplotlib.pyplot as plt
-# import numpy as np
+from distutils.command.build import build
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.screenmanager import ScreenManager, Screen
 
-
-# def estimate_coef(x, y):
-    
-#     # number of observations/points
-#     n = np.size(x)
-       
-#     # mean of x and y vector
-#     m_x = np.mean(x)
-#     m_y = np.mean(y)
-        
-#     # calculating cross-deviation and deviation about x
-#     SS_xy = np.sum(y*x) - n*m_y*m_x
-#     SS_xx = np.sum(x*x) - n*m_x*m_x
-        
-#     # calculating regression coefficients
-#     b_1 = SS_xy / SS_xx
-#     b_0 = m_y - b_1*m_x
-        
-#     return (b_0, b_1)
-       
-# def plot_regression_line(x, y, b):
-#      # plotting the actual points as scatter plot
-#     plt.scatter(x, y, color = "m",
-#                 marker = "o", s = 30)
-        
-#     # predicted response vector
-#     y_pred = b[0] + b[1]*x
-        
-#     # plotting the regression line
-#     plt.plot(x, y_pred, color = "g")
-        
-#     # putting labels
-#     plt.xlabel('x')
-#     plt.ylabel('y')
-        
-#     # function to show plot
-#     plt.show()
-        
-# def main():
-#     # observations / data
-#     x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-#     y = np.array([1, 3, 2, 5, 7, 8, 8, 9, 10, 12])
-        
-#     # estimating coefficients
-#     b = estimate_coef(x, y)
-#     print("Estimated coefficients:\nb_0 = {}  \
-#         \nb_1 = {}".format(b[0], b[1]))
-        
-#     # plotting regression line
-#     plot_regression_line(x, y, b)
-
-
+from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.image import Image
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 import numpy as np
+import pandas as pd
+import matplotlib
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+matplotlib.style.use('ggplot')
 
-# x = np.array([1, 2, 3, 4])
-# y = np.array([1, 3, 6, 8])
+# Create both screens. Please note the root.manager.current: this is how
+# you can control the ScreenManager from kv. Each screen has by default a
+# property manager that gives you the instance of the ScreenManager used.
+Builder.load_string("""
+<MenuScreen>:
+    BoxLayout:
+        Button:
+            text: 'Goto settings'
+            on_press: root.manager.current = 'settings'
+        Button:
+            text: 'Quit'
+            on_press: root.manager.current = 'close'
 
-x = input("Enter")
-y = input("Enter")
+<SettingsScreen>:
+    BoxLayout:
+        Button:
+            text: 'My settings button'
+        Button:
+            text: 'Back to menu'
+            on_press: root.manager.current = 'menu'
+        Button:
+            text: 'close window'
+            on_press: root.manager.current = 'button'
+        
+<closeScreen>:
+    GridLayout:
+        Button:
+            on_press: root.text(txt_inpt.text)
+        TextInput:
+            id: txt_inpt
 
 
-m = (np.mean(x*y)-np.mean(x) * np.mean(y)) / (np.mean(x**2) - np.mean(x) ** 2)
-b = np.mean(y) - m * np.mean(x)
-print(m, b)
+        Button:
+            on_press: root.text(txt_inpt.text)
+        TextInput:
+            id: txt_inpt
+
+""")
+
+global button
+
+# Declare both screens
+class MenuScreen(Screen):
+    pass
+
+class SettingsScreen(Screen):
+    pass
+
+class closeScreen(Screen):
+    pass
+    mtcars = pd.read_csv("data.csv")
+    x = mtcars.Area.values
+    y = mtcars.rooms.values
+
+
+    m = (np.mean(x*y)-np.mean(x) * np.mean(y)) / (np.mean(x**2) - np.mean(x) ** 2)
+    b = np.mean(y) - m * np.mean(x)
+    print(m, b)
+
+    plt.scatter(x, y, color = "m", marker = "o", s = 10)
+    plt.plot(b, 'b')
+    plt.xlabel('Area')
+    plt.ylabel('Number of rooms')
+    plt.show()
+    
+    
+class TestApp(App):
+
+    def build(self):
+        # Create the screen manager
+        sm = ScreenManager()
+        sm.add_widget(MenuScreen(name='menu'))
+        sm.add_widget(SettingsScreen(name='settings'))
+        sm.add_widget(SettingsScreen(name='close'))
+        sm.add_widget(closeScreen(name='button'))
+        
+        
+        return sm
+
+
+if __name__ == '__main__':
+    TestApp().run()

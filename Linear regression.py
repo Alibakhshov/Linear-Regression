@@ -16,14 +16,14 @@ import pandas as pd
 
 class LinearRegression(App):
     def build(self):
-        self.window = GridLayout()
-        self.window.cols = 1
-        self.window.size_hint = (0.6, 0.7)
-        self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
-        #add widgets to window
+        self.linReg_window = GridLayout()
+        self.linReg_window.cols = 1
+        self.linReg_window.size_hint = (0.6, 0.7)
+        self.linReg_window.pos_hint = {"center_x": 0.5, "center_y":0.5}
+        
         
         # image widget
-        self.window.add_widget(Image(source="./Images/UCA.png"))
+        self.linReg_window.add_widget(Image(source="./Images/UCA.png"))
         
         # Label widget
         self.lin_reg = Label(  
@@ -32,7 +32,7 @@ class LinearRegression(App):
                               color = '#00FFCE',
                               size_hint = (1, 0.5)
                               )
-        self.window.add_widget(self.lin_reg)
+        self.linReg_window.add_widget(self.lin_reg)
         
         self.m = Label(  
                               text="m",
@@ -40,26 +40,24 @@ class LinearRegression(App):
                               color = '#00FFCE',
                               size_hint = (1, 0.5),
                               padding = (2, 5),
-                              pos_hint = {"center_x": 5, "center_y":0.5}
+                              pos_hint = {"center_x": 50, "center_y":0.5}
                               )
-        self.window.add_widget(self.m)
+        self.linReg_window.add_widget(self.m)
         
         # Text input widget
-        self.user = TextInput(
+        self.m_out = TextInput(
                             #   multiline=False,
-                              padding_y = (20, 20),
+                              padding_y = (20, 10),
                               size_hint = (1, 0.5)
                               )
-        self.window.add_widget(self.user)
+        self.linReg_window.add_widget(self.m_out)
         
-        # .input_filter='int'
-        
-        self.user1 = TextInput(
+        self.b_out = TextInput(
                             #   multiline=False,
-                              padding_y = (20, 20),
+                              padding_y = (20, 10),
                               size_hint = (1, 0.5)
                               )
-        self.window.add_widget(self.user1)
+        self.linReg_window.add_widget(self.b_out)
         
         # button widget
         self.calculate = Button(
@@ -68,8 +66,8 @@ class LinearRegression(App):
                               bold = True,
                               background_color = '#00FFCE'                     
                               )
-        self.window.add_widget(self.calculate)
-        self.calculate.bind(on_press=self.callback)
+        self.linReg_window.add_widget(self.calculate)
+        self.calculate.bind(on_press=self.LinearRegressionCalculate)
         
         self.exitButton = Button(
                               text="Exit",
@@ -77,70 +75,40 @@ class LinearRegression(App):
                               bold = True,
                               background_color = '#00FFCE'                     
                               )
-        self.window.add_widget(self.exitButton)
+        self.linReg_window.add_widget(self.exitButton)
         self.exitButton.bind(on_press=self.close)
         
-        
-        
-        
-        return self.window
+        return self.linReg_window
 
         
-    def callback(self, instance):
-        # self.greeting.text = "Hello " + self.user.text + "!"
-        # self.greeting.text = str(int(self.user.text)  + int(self.user1.text))
+    def LinearRegressionCalculate(self, instance):
         global m, b
         
-        mtcars = pd.read_csv("data.csv")
+        data = pd.read_csv("data.csv")
         def calculating_m_b(x, y):
-            # number of observations/points
             n = np.size(x)
-        
-            # mean of x and y vector
             x_mean = np.mean(x)
             y_mean = np.mean(y)
-        
-            # calculating cross-deviation and deviation about x
             deviation_xy = np.sum(y*x) - n*y_mean*x_mean
             deviation_xx = np.sum(x*x) - n*x_mean*x_mean
-        
-            # calculating regression coefficients
             m = deviation_xy / deviation_xx
             b = y_mean - m*x_mean
-        
             return (b, m)
         
         def main():
-            # observations / data
-            x = mtcars.Area.values
-            y = mtcars.rooms.values
-        
-            # estimating coefficients
+            x = data.Area.values
+            y = data.rooms.values
             b = calculating_m_b(x, y)
-            self.user.text = str(b[0])
-            self.user1.text = str(b[1])
-            
-            # print("Estimated coefficients:\nm = {}  \
-            #     \nb = {}".format(b[0], b[1]))
-        
-            # plotting regression line
+            self.m_out.text = str(b[0])
+            self.b_out.text = str(b[1])
             plotting_graph(x, y, b)
         
         def plotting_graph(x, y, b):
-            # plotting the actual points as scatter plot
             plt.scatter(x, y, color = "m", marker = "o", s = 30)
-        
-            # predicted response vector
             pred = b[0] + b[1]*x
-        
-            # plotting the regression line
             plt.plot(x, pred, color = "g")
-        
-            # putting labels
             plt.xlabel('Area')
             plt.ylabel('Number of rooms')
-        
-            # function to show plot
             plt.show()
         
         
@@ -152,7 +120,7 @@ class LinearRegression(App):
   
   
     def close(self):
-        self.window.close()  
+        self.linReg_window.close()  
     
 
         

@@ -35,7 +35,7 @@ class LinearRegression(App):
         self.linReg_window.add_widget(self.lin_reg)
         
         self.m = Label(  
-                              text="m",
+                              text="",
                               font_size = 30,
                               color = '#00FFCE',
                               size_hint = (1, 0.5),

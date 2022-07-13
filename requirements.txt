@@ -1,0 +1,6 @@
+kivy
+sympy
+numpy
+matplotlib
+pyrsistent
+pandas
